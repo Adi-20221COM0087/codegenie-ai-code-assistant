@@ -7,8 +7,18 @@ from modules.code_debugger import debug_code
 from modules.code_optimizer import optimize_code
 from modules.complexity_analyzer import analyze_complexity
 
+# Import AI backend configuration
+from utils.llm_handler import (
+    AI_BACKEND,
+    MODEL_NAME,
+    GEMINI_MODEL
+)
 
-# Page configuration
+
+# ==========================================
+# PAGE CONFIGURATION
+# ==========================================
+
 st.set_page_config(
     page_title="CodeGenie - AI Code Assistant",
     page_icon="💻",
@@ -16,7 +26,39 @@ st.set_page_config(
 )
 
 
-# Load custom CSS
+# ==========================================
+# AI BACKEND DISPLAY CONFIGURATION
+# ==========================================
+
+if AI_BACKEND == "gemini":
+    ai_model_display = GEMINI_MODEL
+    ai_backend_display = "Google Gemini API"
+    ai_description = (
+        "Understand, debug, optimize, and analyze your "
+        "code using Google Gemini AI."
+    )
+
+elif AI_BACKEND == "ollama":
+    ai_model_display = MODEL_NAME
+    ai_backend_display = "Ollama (Local)"
+    ai_description = (
+        "Understand, debug, optimize, and analyze your "
+        "code using a locally running AI model."
+    )
+
+else:
+    ai_model_display = "Unknown"
+    ai_backend_display = "Not configured"
+    ai_description = (
+        "Understand, debug, optimize, and analyze "
+        "your programming code."
+    )
+
+
+# ==========================================
+# LOAD CUSTOM CSS
+# ==========================================
+
 css_path = Path(__file__).parent / "assets" / "style.css"
 
 if css_path.exists():
@@ -27,20 +69,27 @@ if css_path.exists():
         )
 
 
-# Header
-st.title("💻 CodeGenie")
-st.subheader("AI-Based Code Explanation and Debugging Assistant")
+# ==========================================
+# HEADER
+# ==========================================
 
-st.write(
-    "Understand, debug, optimize, and analyze your "
-    "code using a locally running AI model."
+st.title("💻 CodeGenie")
+
+st.subheader(
+    "AI-Based Code Explanation and Debugging Assistant"
 )
+
+st.write(ai_description)
 
 st.divider()
 
 
-# Sidebar
+# ==========================================
+# SIDEBAR
+# ==========================================
+
 with st.sidebar:
+
     st.header("⚙️ Settings")
 
     language = st.selectbox(
@@ -61,14 +110,18 @@ with st.sidebar:
     st.divider()
 
     st.info(
-        "AI Model: Qwen2.5-Coder 1.5B\n\n"
-        "Backend: Ollama\n\n"
+        f"AI Model: {ai_model_display}\n\n"
+        f"Backend: {ai_backend_display}\n\n"
         "Framework: Streamlit"
     )
 
 
-# Sample code templates
+# ==========================================
+# SAMPLE CODE TEMPLATES
+# ==========================================
+
 sample_codes = {
+
     "None": "",
 
     "Python - Factorial": """def factorial(n):
@@ -91,7 +144,10 @@ print(add(10))""",
 }
 
 
-# Initialize session state
+# ==========================================
+# INITIALIZE SESSION STATE
+# ==========================================
+
 if "code_input" not in st.session_state:
     st.session_state.code_input = ""
 
@@ -102,7 +158,10 @@ if "analysis_is_error" not in st.session_state:
     st.session_state.analysis_is_error = False
 
 
-# Sample code selection
+# ==========================================
+# SAMPLE CODE SELECTION
+# ==========================================
+
 sample_choice = st.selectbox(
     "📚 Load Sample Code",
     list(sample_codes.keys())
@@ -111,28 +170,43 @@ sample_choice = st.selectbox(
 
 # Load sample button
 if st.button("Load Sample"):
-    st.session_state.code_input = sample_codes[sample_choice]
+
+    st.session_state.code_input = (
+        sample_codes[sample_choice]
+    )
+
     st.session_state.analysis_result = ""
     st.session_state.analysis_is_error = False
+
     st.rerun()
 
 
 # Clear code button
 if st.button("🗑️ Clear Code"):
+
     st.session_state.code_input = ""
     st.session_state.analysis_result = ""
     st.session_state.analysis_is_error = False
+
     st.rerun()
 
 
-# Main layout - wider AI result panel
+# ==========================================
+# MAIN LAYOUT
+# ==========================================
+
 left_col, right_col = st.columns(
     [1, 1.2],
     gap="large"
 )
 
 
+# ==========================================
+# LEFT PANEL - CODE EDITOR
+# ==========================================
+
 with left_col:
+
     st.header("📝 Code Editor")
 
     code = st.text_area(
@@ -144,7 +218,10 @@ with left_col:
 
     # Syntax-highlighted code preview
     if code.strip():
-        with st.expander("👁️ Syntax-Highlighted Preview"):
+
+        with st.expander(
+            "👁️ Syntax-Highlighted Preview"
+        ):
 
             language_map = {
                 "Python": "python",
@@ -167,15 +244,24 @@ with left_col:
     )
 
 
+# ==========================================
+# RIGHT PANEL - AI ANALYSIS RESULT
+# ==========================================
+
 with right_col:
+
     st.header("🤖 AI Analysis Result")
 
     if analyze_button:
 
         if not code.strip():
-            st.warning("Please enter some code first.")
+
+            st.warning(
+                "Please enter some code first."
+            )
 
         else:
+
             operations = {
                 "Explain Code": explain_code,
                 "Debug Code": debug_code,
@@ -185,11 +271,17 @@ with right_col:
 
             selected_function = operations[operation]
 
-            with st.spinner("AI is analyzing your code..."):
-                result = selected_function(code, language)
+            with st.spinner(
+                "AI is analyzing your code..."
+            ):
+                result = selected_function(
+                    code,
+                    language
+                )
 
             # Save the latest AI response
             st.session_state.analysis_result = result
+
             st.session_state.analysis_is_error = (
                 result.startswith("Error:")
             )
@@ -198,10 +290,16 @@ with right_col:
     if st.session_state.analysis_result:
 
         if st.session_state.analysis_is_error:
-            st.error(st.session_state.analysis_result)
+
+            st.error(
+                st.session_state.analysis_result
+            )
 
         else:
-            st.markdown(st.session_state.analysis_result)
+
+            st.markdown(
+                st.session_state.analysis_result
+            )
 
             # Download AI result
             st.download_button(
@@ -213,14 +311,21 @@ with right_col:
             )
 
     elif not analyze_button:
+
         st.info(
-            "Your AI-generated analysis will appear here."
+            "Your AI-generated analysis "
+            "will appear here."
         )
 
+
+# ==========================================
+# FOOTER
+# ==========================================
 
 st.divider()
 
 st.caption(
-    "CodeGenie | Powered by Ollama and Qwen2.5-Coder | "
+    f"CodeGenie | Powered by {ai_backend_display} "
+    f"and {ai_model_display} | "
     "AI-generated results should be reviewed before use."
 )
