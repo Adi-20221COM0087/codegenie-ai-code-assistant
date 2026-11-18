@@ -1,0 +1,58 @@
+
+/* CodeGenie Dashboard Theme */
+
+.stApp {
+    background-color: #0b1120;
+    color: #e2e8f0;
+}
+
+.block-container {
+    max-width: 1400px;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+h1, h2, h3 {
+    color: #f8fafc !important;
+}
+
+[data-testid="stSidebar"] {
+    background-color: #111827;
+    border-right: 1px solid #334155;
+}
+
+[data-testid="stSidebar"] * {
+    color: #e2e8f0;
+}
+
+.stButton > button[kind="primary"] {
+    background: linear-gradient(
+        90deg,
+        #2563eb,
+        #7c3aed
+    );
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.stButton > button[kind="primary"]:hover {
+    background: #4f46e5;
+}
+
+.stTextArea textarea {
+    background-color: #111827;
+    color: #e2e8f0;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    font-family: Consolas, monospace;
+    font-size: 14px;
+}
+
+.stTextArea textarea:focus {
+    border-color: #6366f1;
+}
+
+[data-testid="stMarkdownContainer"] pre {
+    border-radius: 10px;
+}
