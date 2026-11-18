@@ -1,5 +1,30 @@
+
+# ==========================================
+# CodeGenie - Git Ignore Configuration
+# ==========================================
+
+# Python virtual environments
 venv/
+.venv/
+
+# Python cache files
 __pycache__/
 *.pyc
+*.pyo
+
+# Environment variables and private credentials
 .env
+.env.*
 .streamlit/secrets.toml
+
+# Python testing and tooling cache
+.pytest_cache/
+.mypy_cache/
+
+# IDE and editor settings
+.vscode/
+.idea/
+
+# Operating system files
+.DS_Store
+Thumbs.db
