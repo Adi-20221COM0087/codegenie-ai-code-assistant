@@ -1,3 +1,4 @@
+
 # 💻 CodeGenie — AI-Based Code Explanation and Debugging Assistant
 
 **B.Tech Generative AI Mini-Project**
@@ -212,6 +213,8 @@ The `.gitignore` file excludes `.streamlit/secrets.toml` from normal Git trackin
 
 Cloud API access is subject to Google's current pricing, quotas, and model availability.
 
+**Configuration note:** The AI backend must read these settings through `st.secrets` or environment variables. If your version of `llm_handler.py` reads only `os.getenv()`, configure `AI_BACKEND`, `GEMINI_MODEL`, and `GEMINI_API_KEY` as environment variables, or update the handler to read Streamlit secrets.
+
 ### Option B: Local Ollama Mode
 
 This mode uses Ollama and Qwen2.5-Coder 1.5B on your computer.
@@ -297,6 +300,8 @@ CodeGenie follows a modular architecture supporting both local and cloud-based A
 
 The Python debugger also incorporates local static-analysis checks for selected Python error patterns.
 
+When the static analyzer identifies a supported Python issue, it can return a static-analysis report without calling the selected AI backend.
+
 ### Project Structure
 
 ```text
@@ -326,6 +331,10 @@ For local Gemini configuration, create `.streamlit/secrets.toml` separately. Thi
 
 ## 🧪 Testing Summary
 
+CodeGenie was tested locally and on Streamlit Community Cloud to verify its core functionality, AI integration, and user interface.
+
+### Local Functional Testing
+
 Eight planned functional test groups were completed during local development:
 
 | Test | Status |
@@ -339,22 +348,235 @@ Eight planned functional test groups were completed during local development:
 | C++ Code Explanation | Passed |
 | Dashboard Functionality | Passed |
 
-Dashboard testing included sample loading, clearing code, empty-input validation, syntax highlighting, result persistence, and downloading analysis results.
+Dashboard testing included:
+
+- Loading sample programs.
+- Clearing the code editor.
+- Empty-input validation.
+- Syntax-highlighted code preview.
+- AI response generation.
+- Result persistence.
+- Downloading analysis results.
 
 ### Cloud Deployment Testing
+
+The application was deployed on Streamlit Community Cloud using Google Gemini 3.5 Flash Lite.
+
+The following functional tests were performed on the deployed application:
 
 | Test | Status |
 |---|---|
 | Streamlit Community Cloud deployment | Passed |
 | Cloud dashboard loading | Passed |
 | Gemini API integration | Passed |
-| Python code explanation using Gemini | Passed |
-| Expected output identification | Passed |
-| Cloud debugging, optimization, and complexity operations | Pending full verification |
+| Python Code Explanation | Passed |
+| Python Debugging using AST static analysis | Passed |
+| Python Code Optimization | Passed |
+| Python Complexity Analysis | Passed |
+| Download AI Analysis Result | Passed |
 
-The hosted application successfully generated an explanation for `print(2 + 3)` using Gemini 3.5 Flash Lite.
+All four primary CodeGenie operations were demonstrated successfully on the deployed application.
 
-These results describe functional checks and do not represent a formal model accuracy benchmark.
+### Test 1: Python Code Explanation
+
+**Operation:** Explain Code
+
+**AI Backend:** Google Gemini 3.5 Flash Lite
+
+**Input:**
+
+```python
+print(2 + 3)
+```
+
+**Result:**
+
+CodeGenie successfully explained:
+
+1. The purpose of the program.
+2. Step-by-step execution.
+3. The built-in `print()` function.
+4. The absence of user-defined variables.
+5. The expected program output.
+
+**Expected Output:**
+
+```text
+5
+```
+
+**Test Status:** Passed
+
+### Test 2: Python Code Debugging
+
+**Operation:** Debug Code
+
+**Analysis Method:** Python AST Static Analysis
+
+**Input:**
+
+```python
+def add(a, b):
+    return a + b
+
+print(add(10))
+```
+
+**Result:**
+
+CodeGenie successfully detected a missing function argument.
+
+**Detected Error:**
+
+```text
+Line 4: add() is missing required arguments.
+Expected at least 2, received 1.
+```
+
+The function `add(a, b)` requires two arguments, but the function call supplies only one.
+
+**Corrected Code:**
+
+```python
+def add(a, b):
+    return a + b
+
+print(add(10, 20))
+```
+
+**Expected Output:**
+
+```text
+30
+```
+
+**Test Status:** Passed
+
+**Important:** This test verifies Python AST-based static analysis on the hosted application. Gemini-generated debugging responses have not yet been independently verified.
+
+### Test 3: Python Code Optimization
+
+**Operation:** Optimize Code
+
+**AI Backend:** Google Gemini 3.5 Flash Lite
+
+**Input:**
+
+```python
+numbers = [1, 2, 3, 4, 5]
+squares = []
+
+for number in numbers:
+    squares.append(number * number)
+
+print(squares)
+```
+
+**Result:**
+
+CodeGenie generated optimization suggestions and recommended replacing the explicit loop with a Python list comprehension.
+
+**Suggested Optimized Code:**
+
+```python
+numbers = [1, 2, 3, 4, 5]
+
+squares = [number * number for number in numbers]
+
+print(squares)
+```
+
+**Expected Output:**
+
+```text
+[1, 4, 9, 16, 25]
+```
+
+**Explanation:**
+
+The list comprehension provides a more concise implementation while preserving the intended behavior.
+
+Although this approach may reduce Python-level loop overhead, execution-speed improvements have not been independently benchmarked.
+
+**Test Status:** Passed
+
+### Test 4: Python Complexity Analysis
+
+**Operation:** Analyze Complexity
+
+**AI Backend:** Google Gemini 3.5 Flash Lite
+
+**Input:**
+
+```python
+def linear_search(arr, target):
+    for i in range(len(arr)):
+        if arr[i] == target:
+            return i
+    return -1
+
+numbers = [10, 20, 30, 40, 50]
+print(linear_search(numbers, 30))
+```
+
+**Result:**
+
+CodeGenie correctly identified the time and auxiliary space complexities of linear search.
+
+| Complexity Type | Expected Result | CodeGenie Result | Status |
+|---|---|---|---|
+| Worst-Case Time | O(n) | O(n) | Passed |
+| Best-Case Time | O(1) | O(1) | Passed |
+| Average-Case Time | O(n) | O(n) | Passed |
+| Auxiliary Space | O(1) | O(1) | Passed |
+
+**Explanation:**
+
+- **Worst Case — O(n):** The algorithm may examine every element when the target is absent or at the final position.
+- **Best Case — O(1):** The target may be found at the first position, assuming a nonempty array containing the target.
+- **Average Case — O(n):** Under typical assumptions about target placement and search success, the number of comparisons grows linearly with input size.
+- **Auxiliary Space — O(1):** The algorithm uses a constant amount of additional memory, excluding input storage.
+
+The AI response also explained the effects of loops, recursion, and data structures on complexity.
+
+**Expected Program Output:**
+
+```text
+2
+```
+
+**Test Status:** Passed
+
+### Overall Cloud Testing Results
+
+**Four out of four primary CodeGenie operations were successfully demonstrated on the deployed application.**
+
+| Feature | Verification Result |
+|---|---|
+| Code Explanation | Passed |
+| Code Debugging using Python AST | Passed |
+| Code Optimization | Passed |
+| Complexity Analysis | Passed |
+
+Additional verified functionality included:
+
+- Successful loading of the deployed dashboard.
+- Google Gemini API response generation.
+- Display of AI-generated analysis.
+- Detection of a missing Python function argument.
+- Display of optimized Python code.
+- Generation of Big-O complexity estimates.
+- Availability of downloadable analysis results.
+
+### Testing Limitations
+
+- These results represent functional testing rather than formal AI accuracy benchmarking.
+- Gemini-based debugging has not yet been separately verified.
+- AI-generated explanations and corrections may contain inaccuracies.
+- Optimization suggestions are not guaranteed to improve execution speed.
+- Complexity estimates are not formally verified.
+- The application does not execute submitted programs.
+- Cloud responses depend on Gemini API availability, quotas, and internet connectivity.
 
 ## ☁️ Cloud Deployment
 
@@ -426,6 +648,7 @@ The deployment has a public URL, but continuous availability is not guaranteed. 
 - Additional cloud model options.
 - Improved API quota and error handling.
 - User authentication and analysis history.
+- Automated regression testing for both AI backends.
 
 ## 🎓 Conclusion
 
@@ -435,7 +658,9 @@ The project supports both **local AI inference using Ollama and Qwen2.5-Coder** 
 
 By deploying CodeGenie on Streamlit Community Cloud, the application can be accessed through a public web link without requiring visitors to install Python or Ollama.
 
-The project provides a practical example of generative AI integration, modular Python development, API communication, and cloud deployment.
+Functional testing of the deployed application successfully demonstrated all four primary operations: code explanation, Python AST-based debugging, code optimization, and complexity analysis.
+
+The project provides a practical example of generative AI integration, modular Python development, API communication, static program analysis, and cloud deployment.
 
 ## 📚 Project Type
 
