@@ -1,20 +1,257 @@
 
+import os
 import requests
 
-# Ollama configuration
-OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL_NAME = "qwen2.5-coder:1.5b"
+# ==========================================
+# AI BACKEND CONFIGURATION
+# ==========================================
 
+# Available backends: "ollama" or "gemini"
+# Default: Ollama for offline/local usage
+AI_BACKEND = os.getenv("AI_BACKEND", "ollama").strip().lower()
+
+# Ollama configuration
+OLLAMA_URL = os.getenv(
+    "OLLAMA_URL",
+    "http://localhost:11434/api/generate"
+)
+MODEL_NAME = os.getenv(
+    "OLLAMA_MODEL",
+    "qwen2.5-coder:1.5b"
+)
+
+# Gemini configuration
+GEMINI_MODEL = os.getenv(
+    "GEMINI_MODEL",
+    "gemini-3.5-flash-lite"
+)
+
+GEMINI_API_URL = (
+    "https://generativelanguage.googleapis.com/"
+    "v1beta/models"
+)
+
+
+# ==========================================
+# GOOGLE GEMINI CLOUD BACKEND
+# ==========================================
+
+def generate_gemini_response(prompt):
+    """
+    Send a prompt to Google Gemini API.
+    Requires GEMINI_API_KEY.
+    """
+
+    api_key = os.getenv(
+        "GEMINI_API_KEY", ""
+    ).strip()
+
+    if not api_key:
+        return (
+            "Error: GEMINI_API_KEY is not configured. "
+            "Please configure your Gemini API key."
+        )
+
+    url = (
+        f"{GEMINI_API_URL}/"
+        f"{GEMINI_MODEL}:generateContent"
+    )
+
+    payload = {
+        "contents": [
+            {
+                "parts": [
+                    {
+                        "text": prompt
+                    }
+                ]
+            }
+        ],
+        "generationConfig": {
+            "temperature": 0.2,
+            "maxOutputTokens": 1200
+        }
+    }
+
+    try:
+        response = requests.post(
+            url,
+            headers={
+                "x-goog-api-key": api_key,
+                "Content-Type": "application/json"
+            },
+            json=payload,
+            timeout=180
+        )
+
+        response.raise_for_status()
+
+        result = response.json()
+
+        candidates = result.get(
+            "candidates", []
+        )
+
+        if not candidates:
+            return (
+                "Error: Gemini returned no response. "
+                "Check API quota, model availability, "
+                "or content restrictions."
+            )
+
+        parts = candidates[0].get(
+            "content", {}
+        ).get(
+            "parts", []
+        )
+
+        answer = "\n".join(
+            part.get("text", "")
+            for part in parts
+            if part.get("text")
+        ).strip()
+
+        if not answer:
+            return (
+                "Error: Gemini returned an "
+                "empty response."
+            )
+
+        return answer
+
+    except requests.exceptions.Timeout:
+        return (
+            "Error: Gemini API response timed out."
+        )
+
+    except requests.exceptions.HTTPError as error:
+        status_code = error.response.status_code
+
+        if status_code == 400:
+            return (
+                "Error: Invalid Gemini API request. "
+                "Check the selected model."
+            )
+
+        if status_code in (401, 403):
+            return (
+                "Error: Gemini API authentication "
+                "or access failed. Check your API key."
+            )
+
+        if status_code == 404:
+            return (
+                "Error: Gemini model not found. "
+                "Check GEMINI_MODEL."
+            )
+
+        if status_code == 429:
+            return (
+                "Error: Gemini API quota or rate "
+                "limit exceeded. Try again later."
+            )
+
+        return (
+            f"Error: Gemini API returned "
+            f"HTTP {status_code}."
+        )
+
+    except requests.exceptions.ConnectionError:
+        return (
+            "Error: Cannot connect to Gemini API. "
+            "Check your internet connection."
+        )
+
+    except requests.exceptions.RequestException:
+        return (
+            "Error: Gemini API request failed."
+        )
+
+    except ValueError:
+        return (
+            "Error: Invalid JSON response "
+            "received from Gemini."
+        )
+
+
+# ==========================================
+# LOCAL OLLAMA BACKEND
+# ==========================================
+
+def generate_ollama_response(prompt):
+    """
+    Send a prompt to the local Ollama model.
+    """
+
+    payload = {
+        "model": MODEL_NAME,
+        "prompt": prompt,
+        "stream": False,
+        "options": {
+            "temperature": 0.2,
+            "num_ctx": 4096,
+            "num_predict": 700
+        }
+    }
+
+    try:
+        response = requests.post(
+            OLLAMA_URL,
+            json=payload,
+            timeout=180
+        )
+
+        response.raise_for_status()
+
+        result = response.json()
+
+        return result.get(
+            "response",
+            "No response generated."
+        )
+
+    except requests.exceptions.Timeout:
+        return (
+            "Error: Ollama response timed out."
+        )
+
+    except requests.exceptions.ConnectionError:
+        return (
+            "Error: Cannot connect to Ollama. "
+            "Make sure Ollama is running."
+        )
+
+    except requests.exceptions.RequestException as error:
+        return f"Error: {error}"
+
+    except ValueError:
+        return (
+            "Error: Invalid JSON response "
+            "received from Ollama."
+        )
+
+
+# ==========================================
+# MAIN CODEGENIE AI FUNCTION
+# ==========================================
 
 def generate_ai_response(code, language, operation):
     """
-    Send code to the local Ollama AI model.
+    Generate an AI response using either
+    local Ollama or hosted Google Gemini.
+
+    Supported operations:
+    - explain
+    - debug
+    - optimize
+    - complexity
     """
 
-    if not code.strip():
+    if not code or not code.strip():
         return "Error: Please enter some code."
 
     prompts = {
+
         "explain": f"""
 You are a programming teacher.
 Explain this {language} code in simple language.
@@ -105,38 +342,17 @@ Code:
     if operation not in prompts:
         return "Error: Invalid operation."
 
-    payload = {
-        "model": MODEL_NAME,
-        "prompt": prompts[operation],
-        "stream": False,
-        "options": {
-            "temperature": 0.2,
-            "num_ctx": 4096,
-            "num_predict": 700
-        }
-    }
+    prompt = prompts[operation]
 
-    try:
-        response = requests.post(
-            OLLAMA_URL,
-            json=payload,
-            timeout=180
-        )
+    # Select AI backend
+    if AI_BACKEND == "gemini":
+        return generate_gemini_response(prompt)
 
-        response.raise_for_status()
+    if AI_BACKEND == "ollama":
+        return generate_ollama_response(prompt)
 
-        result = response.json()
-
-        return result.get(
-            "response",
-            "No response generated."
-        )
-
-    except requests.exceptions.Timeout:
-        return "Error: Ollama response timed out."
-
-    except requests.exceptions.ConnectionError:
-        return "Error: Cannot connect to Ollama."
-
-    except requests.exceptions.RequestException as error:
-        return f"Error: {error}"
+    return (
+        f"Error: Unsupported AI backend "
+        f"'{AI_BACKEND}'. "
+        "Use 'ollama' or 'gemini'."
+    )
