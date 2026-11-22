@@ -109,10 +109,16 @@ with st.sidebar:
 
     st.divider()
 
-    st.info(
-        f"AI Model: {ai_model_display}\n\n"
-        f"Backend: {ai_backend_display}\n\n"
-        "Framework: Streamlit"
+    # Custom backend information card
+    st.markdown(
+        f"""
+        <div class="backend-info-card">
+            <p><strong>AI Model:</strong> {ai_model_display}</p>
+            <p><strong>Backend:</strong> {ai_backend_display}</p>
+            <p><strong>Framework:</strong> Streamlit</p>
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
 
@@ -310,11 +316,16 @@ with right_col:
                 use_container_width=True
             )
 
+    # Custom themed analysis placeholder
     elif not analyze_button:
 
-        st.info(
-            "Your AI-generated analysis "
-            "will appear here."
+        st.markdown(
+            """
+            <div class="analysis-placeholder">
+                Your AI-generated analysis will appear here.
+            </div>
+            """,
+            unsafe_allow_html=True
         )
 
 
