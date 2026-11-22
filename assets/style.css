@@ -1,10 +1,37 @@
 
-/* CodeGenie Dashboard Theme */
+/* ==================================================
+   CodeGenie Dashboard Theme
+   Dark Teal Green & Soft Sand
+   ================================================== */
+
+:root {
+    --background: #24393a;
+    --sidebar: #1b2e2f;
+    --surface: #304849;
+    --text: #dcd5c3;
+    --muted-text: #b4bcae;
+    --accent: #587c76;
+    --border: #46605d;
+    --hover: #e9e2d2;
+}
+
+/* Main Application */
 
 .stApp {
-    background-color: #0b1120;
-    color: #e2e8f0;
+    background-color: var(--background);
+    color: var(--text);
 }
+
+[data-testid="stAppViewContainer"],
+[data-testid="stMain"] {
+    background-color: var(--background);
+}
+
+[data-testid="stHeader"] {
+    background-color: var(--background);
+}
+
+/* Dashboard Layout */
 
 .block-container {
     max-width: 1400px;
@@ -12,47 +39,312 @@
     padding-bottom: 2rem;
 }
 
-h1, h2, h3 {
-    color: #f8fafc !important;
+/* Headings */
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text) !important;
+    font-weight: 600;
+    letter-spacing: -0.5px;
 }
+
+/* Text */
+
+[data-testid="stMarkdownContainer"],
+[data-testid="stMarkdownContainer"] p,
+[data-testid="stMarkdownContainer"] li,
+[data-testid="stWidgetLabel"] p {
+    color: var(--text);
+}
+
+[data-testid="stCaptionContainer"] {
+    color: var(--muted-text);
+}
+
+a {
+    color: #a6c8b5;
+}
+
+/* Sidebar */
 
 [data-testid="stSidebar"] {
-    background-color: #111827;
-    border-right: 1px solid #334155;
+    background-color: var(--sidebar);
+    border-right: 1px solid var(--border);
 }
 
-[data-testid="stSidebar"] * {
-    color: #e2e8f0;
+[data-testid="stSidebar"] p,
+[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] span {
+    color: var(--text);
 }
 
-.stButton > button[kind="primary"] {
-    background: linear-gradient(
-        90deg,
-        #2563eb,
-        #7c3aed
-    );
-    border: none;
-    border-radius: 10px;
+/* ==================================================
+   Custom Backend Information Card
+   ================================================== */
+
+.backend-info-card {
+    background-color: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    overflow-wrap: anywhere;
+}
+
+.backend-info-card p {
+    color: var(--text) !important;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0 0 12px 0;
+}
+
+.backend-info-card strong {
+    color: var(--text) !important;
     font-weight: 600;
 }
 
-.stButton > button[kind="primary"]:hover {
-    background: #4f46e5;
+.backend-info-card p:last-child {
+    margin-bottom: 0;
 }
 
+/* Primary Analyze Code Button */
+
+.stButton > button[kind="primary"] {
+    background: var(--text);
+    color: var(--background) !important;
+    border: 1px solid var(--text);
+    border-radius: 10px;
+    font-weight: 700;
+    min-height: 42px;
+    transition: all 0.2s ease;
+}
+
+.stButton > button[kind="primary"] p,
+.stButton > button[kind="primary"] span {
+    color: var(--background) !important;
+}
+
+.stButton > button[kind="primary"]:hover {
+    background: var(--hover);
+    border-color: var(--hover);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Secondary Buttons */
+
+.stButton > button:not([kind="primary"]),
+.stDownloadButton > button {
+    background-color: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.stButton > button:not([kind="primary"]):hover,
+.stDownloadButton > button:hover {
+    background-color: var(--border);
+    border-color: var(--accent);
+    color: var(--text);
+}
+
+/* Code Editor */
+
 .stTextArea textarea {
-    background-color: #111827;
-    color: #e2e8f0;
-    border: 1px solid #334155;
+    background-color: var(--sidebar) !important;
+    color: var(--text) !important;
+    border: 1px solid var(--border);
     border-radius: 10px;
     font-family: Consolas, monospace;
     font-size: 14px;
+    line-height: 1.7;
+    padding: 14px;
+    caret-color: var(--text);
+    transition: border-color 0.2s ease;
 }
 
 .stTextArea textarea:focus {
-    border-color: #6366f1;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
 }
 
-[data-testid="stMarkdownContainer"] pre {
+.stTextArea textarea::placeholder {
+    color: var(--muted-text);
+}
+
+/* Text Area Container */
+
+[data-baseweb="textarea"] {
+    background-color: var(--sidebar);
     border-radius: 10px;
+}
+
+/* Dropdown Menus */
+
+[data-baseweb="select"] > div {
+    background-color: var(--surface);
+    color: var(--text);
+    border-color: var(--border);
+    border-radius: 8px;
+}
+
+[data-baseweb="select"] svg {
+    color: var(--text);
+    fill: var(--text);
+}
+
+[data-baseweb="popover"] [role="listbox"],
+[data-baseweb="menu"] {
+    background-color: var(--sidebar);
+    color: var(--text);
+}
+
+[role="option"] {
+    color: var(--text);
+    background-color: var(--sidebar);
+}
+
+[role="option"]:hover,
+[role="option"][aria-selected="true"] {
+    background-color: var(--surface);
+}
+
+/* Radio Buttons */
+
+[data-testid="stRadio"] label {
+    color: var(--text);
+}
+
+[data-testid="stRadio"] input:checked + div {
+    background-color: var(--accent);
+    border-color: var(--accent);
+}
+
+/* Expandable Syntax Preview */
+
+[data-testid="stExpander"] details {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+[data-testid="stExpander"] summary {
+    background-color: var(--surface);
+    color: var(--text);
+}
+
+[data-testid="stExpander"] summary:hover {
+    color: var(--hover);
+}
+
+/* Code Blocks */
+
+[data-testid="stCodeBlock"],
+[data-testid="stMarkdownContainer"] pre {
+    background-color: var(--sidebar) !important;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+[data-testid="stCodeBlock"] pre {
+    background-color: var(--sidebar) !important;
+}
+
+[data-testid="stMarkdownContainer"] :not(pre) > code {
+    background-color: var(--surface);
+    color: var(--text);
+    border-radius: 4px;
+    padding: 2px 5px;
+}
+
+/* Streamlit Information and Alert Cards */
+
+[data-testid="stAlert"] {
+    background-color: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+[data-testid="stAlert"] p {
+    color: var(--text);
+}
+
+/* Dividers */
+
+hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 1.5rem 0;
+}
+
+/* Tables */
+
+[data-testid="stMarkdownContainer"] table {
+    border-collapse: collapse;
+    color: var(--text);
+}
+
+[data-testid="stMarkdownContainer"] th {
+    background-color: var(--sidebar);
+    color: var(--text);
+}
+
+[data-testid="stMarkdownContainer"] td {
+    background-color: var(--surface);
+}
+
+[data-testid="stMarkdownContainer"] th,
+[data-testid="stMarkdownContainer"] td {
+    border: 1px solid var(--border);
+    padding: 10px;
+}
+
+/* Scrollbars */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-text);
+}
+
+/* Text Selection */
+
+::selection {
+    background-color: var(--accent);
+    color: var(--text);
+}
+
+/* Footer */
+
+footer {
+    color: var(--muted-text);
+}
+
+/* ==========================================
+   AI Analysis Placeholder
+   ========================================== */
+
+.analysis-placeholder {
+    background-color: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 20px;
+    font-size: 16px;
+    line-height: 1.7;
 }
